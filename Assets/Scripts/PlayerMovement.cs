@@ -8,7 +8,7 @@ public class PlayerMovement : MonoBehaviour
     public float moveSpeed;
     public float rotationSpeed;
     public float runSpeed;
-    public bool isAiming = false; // Simulado con click derecho, por ejemplo
+    public bool isAiming = false;
 
     private CharacterController controller;
     private float rotationVelocity;
