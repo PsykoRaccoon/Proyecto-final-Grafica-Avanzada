@@ -7,7 +7,6 @@ public class CameraOrbit : MonoBehaviour
     public Transform target;
     public Vector3 offset;
     public float sensitivity;
-    public float distance;
     public float minY;
     public float maxY;
 

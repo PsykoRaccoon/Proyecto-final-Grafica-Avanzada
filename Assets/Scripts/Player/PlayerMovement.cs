@@ -43,19 +43,17 @@ public class PlayerMovement : MonoBehaviour
 
         float currentSpeed = 0f;
 
-        if (inputDirection.magnitude >= 0.1f)
+        bool isMoving = inputDirection.magnitude >= 0.1f;
+        bool isRunning = !isAiming && Input.GetKey(KeyCode.LeftShift);
+        float moveSpeedToUse = isRunning ? runSpeed : moveSpeed;
+
+        if (isMoving)
         {
-            bool isRunning = !isAiming && Input.GetKey(KeyCode.LeftShift);
             currentSpeed = isRunning ? 2f : 1f;
-
-            float targetAngle = Mathf.Atan2(moveDir.x, moveDir.z) * Mathf.Rad2Deg;
-            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref rotationVelocity, rotationSpeed * Time.deltaTime);
-            transform.rotation = Quaternion.Euler(0f, angle, 0f);
-
-            float moveSpeedToUse = isRunning ? runSpeed : moveSpeed;
             controller.Move(moveDir.normalized * moveSpeedToUse * Time.deltaTime);
         }
-        else
+
+        if (isAiming)
         {
             Vector3 lookDirection = cameraOrbit.GetForward();
             lookDirection.y = 0f;
@@ -65,8 +63,12 @@ public class PlayerMovement : MonoBehaviour
                 Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
             }
-
-            currentSpeed = 0f;
+        }
+        else if (isMoving)
+        {
+            float targetAngle = Mathf.Atan2(moveDir.x, moveDir.z) * Mathf.Rad2Deg;
+            float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref rotationVelocity, rotationSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.Euler(0f, angle, 0f);
         }
 
         animator.SetFloat("Speed", currentSpeed);
