@@ -11,20 +11,26 @@ public class EnemyLaser : MonoBehaviour
     public float laserDuration;
 
     private LineRenderer laserLine;
-    private float fireTimer;
     private bool canShoot = true;
+
+    public float damage;
+
+    public AudioClip laserSound;
+    private AudioSource audioSource;
+
 
     void Awake()
     {
         laserLine = GetComponent<LineRenderer>();
         laserLine.enabled = false;
+        audioSource = GetComponent<AudioSource>();
     }
+
 
     public void TryShoot()
     {
         if (canShoot)
         {
-            fireTimer = 0f;
             StartCoroutine(ShootLaser());
         }
     }
@@ -32,6 +38,8 @@ public class EnemyLaser : MonoBehaviour
     IEnumerator ShootLaser()
     {
         canShoot = false;
+
+        audioSource.PlayOneShot(laserSound);
 
         Vector3 origin = laserOrigin.position;
         Vector3 direction = (player.position - origin).normalized;
@@ -42,7 +50,11 @@ public class EnemyLaser : MonoBehaviour
         {
             laserLine.SetPosition(1, hit.point);
 
-            // damage xd
+            PlayerHealth playerHealth = hit.collider.GetComponent<PlayerHealth>();
+            if (playerHealth != null)
+            {
+                playerHealth.TakeDamage(damage); 
+            }
         }
         else
         {

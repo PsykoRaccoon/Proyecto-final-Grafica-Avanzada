@@ -19,6 +19,7 @@ public class GunSystem : MonoBehaviour
     public Transform attackPoint;
     public RaycastHit rayHit;
     public LayerMask enemy;
+    public LayerMask ground;
 
 
     [Header("Audio")]
@@ -73,39 +74,45 @@ public class GunSystem : MonoBehaviour
 
     private void Shoot()
     {
-        float x = Random.Range(-spread, spread);
-        float y = Random.Range(-spread, spread);
-        Vector3 direction = Cam.transform.forward + new Vector3(x, y, 0);
-
         readyToShoot = false;
         audioSource.PlayOneShot(shootSound);
 
-        if (Physics.Raycast(Cam.transform.position, direction, out rayHit, range, enemy))
+        for (int i = 0; i < bulletsPerTap; i++)
         {
-            Quaternion hitRotation = Quaternion.LookRotation(rayHit.normal);
-            GameObject hole = Instantiate(bulletHole, rayHit.point, hitRotation);
-            AudioSource.PlayClipAtPoint(hitSound, rayHit.point);
-            Destroy(hole, 10f);
+            float x = Random.Range(-spread, spread);
+            float y = Random.Range(-spread, spread);
+            Vector3 direction = Cam.transform.forward + Cam.transform.TransformDirection(new Vector3(x, y, 0));
 
-            /*PlayerHealth targetHealth = rayHit.collider.GetComponent<PlayerHealth>();
-            if (targetHealth != null)
+            if (Physics.Raycast(Cam.transform.position, direction, out RaycastHit hit, range))
             {
-                targetHealth.TakeDamage(damage);
-            }*/
+                GameObject hitObject = hit.collider.gameObject;
+                int hitLayer = hitObject.layer;
+
+                if ((enemy.value & (1 << hitLayer)) != 0)
+                {
+                    EnemyHealth enemyHealth = hitObject.GetComponent<EnemyHealth>();
+                    if (enemyHealth != null)
+                    {
+                        enemyHealth.TakeDamage(damage);
+                        AudioSource.PlayClipAtPoint(hitSound, hit.point);
+                    }
+                }
+
+                if ((ground.value & (1 << hitLayer)) != 0)
+                {
+                    Quaternion hitRotation = Quaternion.LookRotation(hit.normal);
+                    GameObject hole = Instantiate(bulletHole, hit.point, hitRotation);
+                    Destroy(hole, 10f);
+                }
+            }
         }
 
         Instantiate(muzzleFlash, attackPoint.position, Quaternion.identity);
 
-        bulletsLeft--;
-        bulletsShot--;
-
+        bulletsLeft -= bulletsPerTap;
         Invoke("ResetShot", timeBetweenShooting);
-
-        if (bulletsShot > 0 && bulletsLeft > 0)
-        {
-            Invoke("Shoot", timeBetweenShots);
-        }
     }
+
 
 
     private void ResetShot()
