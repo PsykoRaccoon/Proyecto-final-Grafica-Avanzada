@@ -4,9 +4,10 @@ using System.Collections;
 
 public class IA : MonoBehaviour
 {
-    public NavMeshAgent agent; //tienes que ponerle un navmeshagent a los enemigos para que caminen y un navmeshsurface al piso 
+    public NavMeshAgent agent; 
     public Transform player;
-    public Animator animator; //las animaciones sacalas de mixamo como le hice con el jugador, si tienes dudas, checa como esta el jugador o mandame mensaje
+    public Animator animator;
+    public EnemyLaser laserGun;
 
     [Header("Patrol")]
     public float patrolRadius;
@@ -50,7 +51,7 @@ public class IA : MonoBehaviour
         }
 
         animator.SetBool("isWalking", true);
-        animator.SetBool("isAttacking", false);     //haz que ataquen de cerca, que no disparen ni nada 
+        animator.SetBool("isAttacking", false);     
         animator.SetBool("isRunning", false);
     }
 
@@ -58,17 +59,26 @@ public class IA : MonoBehaviour
     {
         agent.SetDestination(player.position);
         animator.SetBool("isWalking", false);
-        animator.SetBool("isRunning", true);        // en el animator controller de los robots, haces los parametros booleanos para activarlos, ponles el mismo nombre que aqui
+        animator.SetBool("isRunning", true);        
         animator.SetBool("isAttacking", false);
     }
 
     void Attack()
     {
         agent.ResetPath();
+        laserGun.TryShoot();
+
+
+        Vector3 direction = (player.position - transform.position).normalized;
+        direction.y = 0f;
+        Quaternion lookRotation = Quaternion.LookRotation(direction);
+        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 3f);
+
         animator.SetBool("isWalking", false);
         animator.SetBool("isRunning", false);
         animator.SetBool("isAttacking", true);
     }
+
 
     void SetNewPatrolPoint()
     {
