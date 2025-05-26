@@ -2,12 +2,19 @@ using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour
 {
-    public float maxHealth;
+    public float maxHealth = 100f;
     public float currentHealth;
 
-    void Start()
+    private WaveManager waveManager;
+
+    void OnEnable()
     {
-        currentHealth = maxHealth;
+        ResetHealth();
+    }
+
+    public void SetWaveManager(WaveManager manager)
+    {
+        waveManager = manager;
     }
 
     public void TakeDamage(float amount)
@@ -23,5 +30,15 @@ public class EnemyHealth : MonoBehaviour
     void Die()
     {
         gameObject.SetActive(false);
+
+        if (waveManager != null)
+        {
+            waveManager.OnEnemyKilled();
+        }
+    }
+
+    public void ResetHealth()
+    {
+        currentHealth = maxHealth;
     }
 }

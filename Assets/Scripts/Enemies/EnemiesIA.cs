@@ -5,7 +5,7 @@ using System.Collections;
 public class IA : MonoBehaviour
 {
     public NavMeshAgent agent; 
-    public Transform player;
+    private Transform player;
     public Animator animator;
     public EnemyLaser laserGun;
 
@@ -22,6 +22,27 @@ public class IA : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+
+        // Buscar automáticamente al jugador si no está asignado
+        if (player == null)
+        {
+            GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+            if (playerObject != null)
+            {
+                player = playerObject.transform;
+            }
+            else
+            {
+                Debug.LogWarning("No se encontró ningún objeto con la etiqueta 'Player'.");
+            }
+        }
+
+        // También asignar el player al láser
+        if (laserGun != null && player != null)
+        {
+            laserGun.player = player;
+        }
+
         SetNewPatrolPoint();
     }
 

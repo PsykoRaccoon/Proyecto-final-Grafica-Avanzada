@@ -18,14 +18,24 @@ public class EnemyLaser : MonoBehaviour
     public AudioClip laserSound;
     private AudioSource audioSource;
 
+    private int playerLayerMask;
 
     void Awake()
     {
         laserLine = GetComponent<LineRenderer>();
         laserLine.enabled = false;
         audioSource = GetComponent<AudioSource>();
-    }
 
+        if (player == null)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+                player = playerObj.transform;
+        }
+
+        // Crear máscara para solo la capa "Player"
+        playerLayerMask = 1 << LayerMask.NameToLayer("Player");
+    }
 
     public void TryShoot()
     {
@@ -37,6 +47,12 @@ public class EnemyLaser : MonoBehaviour
 
     IEnumerator ShootLaser()
     {
+        if (player == null)
+        {
+            Debug.LogWarning("EnemyLaser no tiene referencia al Player. Aborta disparo.");
+            yield break;
+        }
+
         canShoot = false;
 
         audioSource.PlayOneShot(laserSound);
@@ -44,16 +60,21 @@ public class EnemyLaser : MonoBehaviour
         Vector3 origin = laserOrigin.position;
         Vector3 direction = (player.position - origin).normalized;
 
+        Debug.DrawRay(origin, direction * gunRange, Color.red, 1f);
+
         laserLine.SetPosition(0, origin);
 
-        if (Physics.Raycast(origin, direction, out RaycastHit hit, gunRange))
+        // Raycast solo para la capa Player
+        if (Physics.Raycast(origin, direction, out RaycastHit hit, gunRange, playerLayerMask))
         {
+            Debug.Log("Láser golpeó a: " + hit.collider.name);
+
             laserLine.SetPosition(1, hit.point);
 
-            PlayerHealth playerHealth = hit.collider.GetComponent<PlayerHealth>();
+            PlayerHealth playerHealth = hit.collider.GetComponentInParent<PlayerHealth>();
             if (playerHealth != null)
             {
-                playerHealth.TakeDamage(damage); 
+                playerHealth.TakeDamage(damage);
             }
         }
         else
