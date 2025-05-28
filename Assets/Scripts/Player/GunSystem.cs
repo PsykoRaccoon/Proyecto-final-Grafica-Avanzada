@@ -96,6 +96,13 @@ public class GunSystem : MonoBehaviour
                         enemyHealth.TakeDamage(damage);
                         AudioSource.PlayClipAtPoint(hitSound, hit.point);
                     }
+
+                    Destructible destructible = hitObject.GetComponent<Destructible>();
+                    if (destructible != null)
+                    {
+                        destructible.TakeDamage(damage);
+                        AudioSource.PlayClipAtPoint(hitSound, hit.point);
+                    }
                 }
 
                 if ((ground.value & (1 << hitLayer)) != 0)

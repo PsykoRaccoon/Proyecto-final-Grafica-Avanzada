@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CameraOrbit : MonoBehaviour
@@ -9,6 +7,10 @@ public class CameraOrbit : MonoBehaviour
     public float sensitivity;
     public float minY;
     public float maxY;
+
+    public float collisionRadius = 0.3f; 
+    public LayerMask collisionMask;      
+
 
     private float yaw = 0;
     private float pitch = 10;
@@ -29,9 +31,26 @@ public class CameraOrbit : MonoBehaviour
         Quaternion rotation = Quaternion.Euler(pitch, yaw, 0);
         Vector3 desiredPosition = target.position + rotation * offset;
 
-        transform.position = desiredPosition;
+        Vector3 direction = (desiredPosition - target.position).normalized;
+        float distance = offset.magnitude;
+
+        RaycastHit hit;
+
+        if (Physics.SphereCast(target.position, collisionRadius, direction, out hit, distance, collisionMask))
+        {
+            float adjustedDistance = hit.distance - 0.1f; 
+            adjustedDistance = Mathf.Max(adjustedDistance, 0.1f); 
+
+            transform.position = target.position + direction * adjustedDistance;
+        }
+        else
+        {
+            transform.position = desiredPosition;
+        }
+
         transform.LookAt(target);
     }
+
 
     public Quaternion GetRotation()
     {

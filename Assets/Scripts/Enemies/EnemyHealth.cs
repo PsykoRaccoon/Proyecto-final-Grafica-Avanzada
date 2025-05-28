@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour
 {
-    public float maxHealth = 100f;
+    public float maxHealth;
     public float currentHealth;
 
     private WaveManager waveManager;
