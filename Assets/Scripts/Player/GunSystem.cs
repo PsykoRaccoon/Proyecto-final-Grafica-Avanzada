@@ -17,7 +17,6 @@ public class GunSystem : MonoBehaviour
     [Header("References")]
     public Camera Cam;
     public Transform attackPoint;
-    public RaycastHit rayHit;
     public LayerMask enemy;
     public LayerMask ground;
 
@@ -77,50 +76,64 @@ public class GunSystem : MonoBehaviour
         readyToShoot = false;
         audioSource.PlayOneShot(shootSound);
 
-        for (int i = 0; i < bulletsPerTap; i++)
+        bulletsShot = Mathf.Min(bulletsPerTap, bulletsLeft);
+
+        Ray cameraRay = Cam.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f));
+        Vector3 targetPoint;
+        if (Physics.Raycast(cameraRay, out RaycastHit camHit, range, enemy))
+            targetPoint = camHit.point;
+        else
+            targetPoint = Cam.transform.position + Cam.transform.forward * range;
+
+        ShootBullet(targetPoint);
+    }
+
+    private void ShootBullet(Vector3 targetPoint)
+    {
+        Instantiate(muzzleFlash, attackPoint.position, attackPoint.rotation);
+
+        int traceMask = enemy | ground;
+
+        for (int i = 0; i < bulletsShot; i++)
         {
             float x = Random.Range(-spread, spread);
             float y = Random.Range(-spread, spread);
-            Vector3 direction = Cam.transform.forward + Cam.transform.TransformDirection(new Vector3(x, y, 0));
 
-            if (Physics.Raycast(Cam.transform.position, direction, out RaycastHit hit, range))
+            Vector3 baseDir = (targetPoint - attackPoint.position).normalized;
+            Vector3 spreadOffset = attackPoint.TransformDirection(new Vector3(x, y, 0));
+            Vector3 direction = (baseDir + spreadOffset).normalized;
+
+            Debug.DrawRay(attackPoint.position, direction * range, Color.red, 5f);
+
+            if (Physics.Raycast(attackPoint.position, direction, out RaycastHit hit, range, traceMask))
             {
-                GameObject hitObject = hit.collider.gameObject;
-                int hitLayer = hitObject.layer;
+                int hitLayer = hit.collider.gameObject.layer;
 
                 if ((enemy.value & (1 << hitLayer)) != 0)
                 {
-                    EnemyHealth enemyHealth = hitObject.GetComponent<EnemyHealth>();
-                    if (enemyHealth != null)
+                    if (hit.collider.TryGetComponent<EnemyHealth>(out var eH))
                     {
-                        enemyHealth.TakeDamage(damage);
+                        eH.TakeDamage(damage);
                         AudioSource.PlayClipAtPoint(hitSound, hit.point);
                     }
-
-                    Destructible destructible = hitObject.GetComponent<Destructible>();
-                    if (destructible != null)
+                    if (hit.collider.TryGetComponent<Destructible>(out var d))
                     {
-                        destructible.TakeDamage(damage);
+                        d.TakeDamage(damage);
                         AudioSource.PlayClipAtPoint(hitSound, hit.point);
                     }
                 }
-
-                if ((ground.value & (1 << hitLayer)) != 0)
+                else if ((ground.value & (1 << hitLayer)) != 0)
                 {
-                    Quaternion hitRotation = Quaternion.LookRotation(hit.normal);
-                    GameObject hole = Instantiate(bulletHole, hit.point, hitRotation);
+                    Quaternion rot = Quaternion.LookRotation(hit.normal);
+                    var hole = Instantiate(bulletHole, hit.point, rot);
                     Destroy(hole, 10f);
                 }
             }
         }
 
-        Instantiate(muzzleFlash, attackPoint.position, Quaternion.identity);
-
-        bulletsLeft -= bulletsPerTap;
-        Invoke("ResetShot", timeBetweenShooting);
+        bulletsLeft -= bulletsShot;
+        Invoke(nameof(ResetShot), timeBetweenShooting);
     }
-
-
 
     private void ResetShot()
     {
@@ -130,6 +143,7 @@ public class GunSystem : MonoBehaviour
     private void Reload()
     {
         reloading = true;
+        playerMovement.animator.SetTrigger("Reload");
         audioSource.PlayOneShot(reloadSound);
         Invoke("ReloadFinished", reloadTime);
     }

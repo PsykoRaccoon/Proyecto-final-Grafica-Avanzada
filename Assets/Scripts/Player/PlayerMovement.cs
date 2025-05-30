@@ -15,7 +15,7 @@ public class PlayerMovement : MonoBehaviour
 
     private CharacterController controller;
     private float rotationVelocity;
-    private Animator animator;
+    public Animator animator;
 
     void Start()
     {
