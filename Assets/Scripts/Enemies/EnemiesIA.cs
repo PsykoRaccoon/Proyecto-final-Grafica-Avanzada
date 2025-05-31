@@ -4,7 +4,7 @@ using System.Collections;
 
 public class IA : MonoBehaviour
 {
-    public NavMeshAgent agent; 
+    public NavMeshAgent agent;
     private Transform player;
     public Animator animator;
     public EnemyLaser laserGun;
@@ -68,11 +68,11 @@ public class IA : MonoBehaviour
     {
         if (!agent.hasPath || agent.remainingDistance < 1f)
         {
-            SetNewPatrolPoint(); 
+            SetNewPatrolPoint();
         }
 
         animator.SetBool("isWalking", true);
-        animator.SetBool("isAttacking", false);     
+        animator.SetBool("isAttacking", false);
         animator.SetBool("isRunning", false);
     }
 
@@ -80,20 +80,38 @@ public class IA : MonoBehaviour
     {
         agent.SetDestination(player.position);
         animator.SetBool("isWalking", false);
-        animator.SetBool("isRunning", true);        
+        animator.SetBool("isRunning", true);
         animator.SetBool("isAttacking", false);
     }
 
     void Attack()
     {
-        agent.ResetPath();
-        laserGun.TryShoot();
-
-
+        // Apuntar hacia el jugador
         Vector3 direction = (player.position - transform.position).normalized;
         direction.y = 0f;
         Quaternion lookRotation = Quaternion.LookRotation(direction);
         transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 3f);
+
+        // Verificar línea de visión antes de disparar
+        Vector3 origin = transform.position + Vector3.up * 1.5f; // altura aproximada de los ojos
+        Vector3 target = player.position + Vector3.up * 1.5f;    // altura del jugador
+        Vector3 shootDir = (target - origin).normalized;
+        float distance = Vector3.Distance(origin, target);
+
+        RaycastHit hit;
+        if (Physics.Raycast(origin, shootDir, out hit, distance))
+        {
+            if (hit.transform == player)
+            {
+                // Solo dispara si ve directamente al jugador
+                laserGun.TryShoot();
+            }
+            else
+            {
+                // Hay un obstáculo en medio (pared, etc.)
+                Debug.Log("Bloqueado: no tiene línea de visión al jugador.");
+            }
+        }
 
         animator.SetBool("isWalking", false);
         animator.SetBool("isRunning", false);
