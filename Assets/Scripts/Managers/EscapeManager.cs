@@ -12,13 +12,13 @@ public class EscapeManager : MonoBehaviour
     public Transform player;
     public GameObject marker;
 
-    public GameObject resultTextObject; // GameObject del texto de resultado
-    private TextMeshProUGUI resultText; // Componente de texto real
+    public GameObject resultTextObject; 
+    private TextMeshProUGUI resultText; 
 
     void Start()
     {
         resultText = resultTextObject.GetComponent<TextMeshProUGUI>();
-        resultTextObject.SetActive(false); // Ocultarlo al inicio
+        resultTextObject.SetActive(false); 
     }
 
     void Update()
@@ -57,7 +57,7 @@ public class EscapeManager : MonoBehaviour
         timer = escapeTime;
         escapeActive = true;
         timerText.gameObject.SetActive(true);
-        resultTextObject.SetActive(false); // Ocultar resultados pasados
+        resultTextObject.SetActive(false); 
     }
 
     public void SetInside(bool inside)
