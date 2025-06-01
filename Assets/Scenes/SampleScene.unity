@@ -19094,6 +19094,7 @@ MonoBehaviour:
   runSpeed: 10
   isAiming: 0
   gravity: -9.81
+  animator: {fileID: 0}
 --- !u!143 &5728308587660028720
 CharacterController:
   m_ObjectHideFlags: 0
