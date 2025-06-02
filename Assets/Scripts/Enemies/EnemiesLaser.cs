@@ -33,7 +33,6 @@ public class EnemyLaser : MonoBehaviour
                 player = playerObj.transform;
         }
 
-        // Crear máscara para solo la capa "Player"
         playerLayerMask = 1 << LayerMask.NameToLayer("Player");
     }
 
@@ -58,13 +57,14 @@ public class EnemyLaser : MonoBehaviour
         audioSource.PlayOneShot(laserSound);
 
         Vector3 origin = laserOrigin.position;
-        Vector3 direction = (player.position - origin).normalized;
+        Vector3 targetPosition = player.position + Vector3.up * 1.2f; 
+        Vector3 direction = (targetPosition - origin).normalized;
+
 
         Debug.DrawRay(origin, direction * gunRange, Color.red, 1f);
 
         laserLine.SetPosition(0, origin);
 
-        // Raycast solo para la capa Player
         if (Physics.Raycast(origin, direction, out RaycastHit hit, gunRange, playerLayerMask))
         {
             Debug.Log("Láser golpeó a: " + hit.collider.name);

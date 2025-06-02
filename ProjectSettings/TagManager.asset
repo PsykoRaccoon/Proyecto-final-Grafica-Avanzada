@@ -11,6 +11,8 @@ TagManager:
   - button f2
   - button f1
   - button f6
+  - FxTemporaire
+  - Target
   layers:
   - Default
   - TransparentFX

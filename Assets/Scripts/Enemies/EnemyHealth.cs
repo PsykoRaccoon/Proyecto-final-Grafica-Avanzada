@@ -4,6 +4,7 @@ public class EnemyHealth : MonoBehaviour
 {
     public float maxHealth;
     public float currentHealth;
+    public GameObject explosionEffectPrefab; 
 
     private WaveManager waveManager;
 
@@ -29,6 +30,11 @@ public class EnemyHealth : MonoBehaviour
 
     void Die()
     {
+        if (explosionEffectPrefab != null)
+        {
+            Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
+        }
+
         gameObject.SetActive(false);
 
         if (waveManager != null)

@@ -23,7 +23,6 @@ public class IA : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
 
-        // Buscar automáticamente al jugador si no está asignado
         if (player == null)
         {
             GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
@@ -37,7 +36,6 @@ public class IA : MonoBehaviour
             }
         }
 
-        // También asignar el player al láser
         if (laserGun != null && player != null)
         {
             laserGun.player = player;
@@ -66,6 +64,8 @@ public class IA : MonoBehaviour
 
     void Patrol()
     {
+        agent.isStopped = false;
+
         if (!agent.hasPath || agent.remainingDistance < 1f)
         {
             SetNewPatrolPoint(); 
@@ -78,6 +78,7 @@ public class IA : MonoBehaviour
 
     void ChasePlayer()
     {
+        agent.isStopped = false;
         agent.SetDestination(player.position);
         animator.SetBool("isWalking", false);
         animator.SetBool("isRunning", true);        
@@ -85,43 +86,39 @@ public class IA : MonoBehaviour
     }
 
     void Attack()
-{
-    // Apuntar hacia el jugador
-    Vector3 direction = (player.position - transform.position).normalized;
-    direction.y = 0f;
-    Quaternion lookRotation = Quaternion.LookRotation(direction);
-    transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 3f);
-
-    // Verificar línea de visión antes de disparar
-    Vector3 origin = transform.position + Vector3.up * 1.5f; // altura aproximada de los ojos
-    Vector3 target = player.position + Vector3.up * 1.5f;    // altura del jugador
-    Vector3 shootDir = (target - origin).normalized;
-    float distance = Vector3.Distance(origin, target);
-
-    RaycastHit hit;
-    if (Physics.Raycast(origin, shootDir, out hit, distance))
     {
-        if (hit.transform == player)
+        agent.isStopped = true;
+        Vector3 direction = (player.position - transform.position).normalized;
+        direction.y = 0f;
+        Quaternion lookRotation = Quaternion.LookRotation(direction);
+        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 3f);
+
+        Vector3 origin = transform.position + Vector3.up * 1.5f;
+        Vector3 target = player.position + Vector3.up * 1.5f;
+        Vector3 shootDir = (target - origin).normalized;
+        float distance = Vector3.Distance(origin, target);
+
+        RaycastHit hit;
+        if (Physics.Raycast(origin, shootDir, out hit, distance))
         {
-            // Solo dispara si ve directamente al jugador
-            laserGun.TryShoot();
+            if (hit.transform == player)
+            {
+                laserGun.TryShoot();
+            }
+            else
+            {
+                Debug.Log("Bloqueado: no tiene línea de visión al jugador.");
+            }
         }
-        else
-        {
-            // Hay un obstáculo en medio (pared, etc.)
-            Debug.Log("Bloqueado: no tiene línea de visión al jugador.");
-        }
+
+        animator.SetBool("isWalking", false);
+        animator.SetBool("isRunning", false);
+        animator.SetBool("isAttacking", true);
     }
-
-    animator.SetBool("isWalking", false);
-    animator.SetBool("isRunning", false);
-    animator.SetBool("isAttacking", true);
-}
-
-
 
     void SetNewPatrolPoint()
     {
+        agent.isStopped = false;
         Vector3 randomDirection = Random.insideUnitSphere * patrolRadius;
         randomDirection += transform.position;
         NavMeshHit hit;
