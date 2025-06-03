@@ -8,8 +8,12 @@ public class EnemyHealth : MonoBehaviour
 
     private WaveManager waveManager;
 
+    public AudioClip explosion;
+    public AudioSource audioSource;
+
     void OnEnable()
     {
+        audioSource = GetComponent<AudioSource>();
         ResetHealth();
     }
 
@@ -35,6 +39,11 @@ public class EnemyHealth : MonoBehaviour
             Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
         }
 
+        if (explosion != null)
+        {
+            AudioSource.PlayClipAtPoint(explosion, transform.position);
+        }
+
         gameObject.SetActive(false);
 
         if (waveManager != null)
@@ -42,6 +51,7 @@ public class EnemyHealth : MonoBehaviour
             waveManager.OnEnemyKilled();
         }
     }
+
 
     public void ResetHealth()
     {

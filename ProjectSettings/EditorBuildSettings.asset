@@ -6,9 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Edificio/enviroment/Office building/scene/Menu.unity
+    path: Assets/Scenes/Menu.unity
     guid: 0293b259b529f3a42a491e5695b83b89
   - enabled: 1
-    path: Assets/Edificio/enviroment/Office building/scene/office building.unity
+    path: Assets/Scenes/office building.unity
     guid: cc855a45dc62bb8479a2ca85a707b08a
   m_configObjects: {}

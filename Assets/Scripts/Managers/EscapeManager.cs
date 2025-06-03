@@ -16,7 +16,10 @@ public class EscapeManager : MonoBehaviour
     public GameObject resultTextObject;
     public GameObject winOrLose;
     public GameObject nuke;
-    private TextMeshProUGUI resultText; 
+    private TextMeshProUGUI resultText;
+
+    public AudioClip explosion;
+    public AudioSource audioSource;
 
     void Start()
     {
@@ -75,6 +78,7 @@ public class EscapeManager : MonoBehaviour
     IEnumerator ShowLoseWithDelay()
     {
         nuke.SetActive(true);
+        AudioSource.PlayClipAtPoint(explosion, transform.position);
 
         Time.timeScale = 0.2f; 
         Time.fixedDeltaTime = 0.02f * Time.timeScale; 
