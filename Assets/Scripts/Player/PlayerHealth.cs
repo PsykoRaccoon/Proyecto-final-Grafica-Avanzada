@@ -1,6 +1,6 @@
 using TMPro;
 using UnityEngine;
-
+using System;
 public class PlayerHealth : MonoBehaviour
 {
     [Header("Health")]
@@ -19,7 +19,7 @@ public class PlayerHealth : MonoBehaviour
     public GameObject healthGameOverCanvas;
     private TextMeshProUGUI resultText;
 
-
+    public static event Action OnPlayerDied;
     void Start()
     {
         healthGameOverCanvas.SetActive(false);
@@ -87,6 +87,7 @@ public class PlayerHealth : MonoBehaviour
 
     void Die()
     {
+        OnPlayerDied?.Invoke();
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         healthGameOverCanvas.SetActive(true);

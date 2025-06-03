@@ -1,7 +1,7 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
-
+using System; 
 public class EscapeManager : MonoBehaviour
 {
     public float escapeTime;
@@ -20,6 +20,10 @@ public class EscapeManager : MonoBehaviour
 
     public AudioClip explosion;
     public AudioSource audioSource;
+
+
+    public static event Action OnPlayerDied;
+
 
     void Start()
     {
@@ -45,10 +49,12 @@ public class EscapeManager : MonoBehaviour
         }
         else if (!isInside)
         {
+
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
             winOrLose.SetActive(true);
             ShowResult("Escapaste ¡Ganaste!", Color.green);
+            OnPlayerDied?.Invoke();
             escapeActive = false;
         }
     }
@@ -91,6 +97,7 @@ public class EscapeManager : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         winOrLose.SetActive(true);
+        OnPlayerDied?.Invoke();
         ShowResult("No pudiste escapar ¡Perdiste!", Color.red);
         Time.timeScale = 0f;
     }

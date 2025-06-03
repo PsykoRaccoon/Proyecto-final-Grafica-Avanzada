@@ -67,7 +67,7 @@ public class EnemyLaser : MonoBehaviour
 
         if (Physics.Raycast(origin, direction, out RaycastHit hit, gunRange, playerLayerMask))
         {
-            Debug.Log("Láser golpeó a: " + hit.collider.name);
+           // Debug.Log("Láser golpeó a: " + hit.collider.name);
 
             laserLine.SetPosition(1, hit.point);
 

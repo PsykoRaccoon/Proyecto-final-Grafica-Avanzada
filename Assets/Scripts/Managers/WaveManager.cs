@@ -10,8 +10,21 @@ public class WaveManager : MonoBehaviour
     public int currentWave = 1;
     public int enemiesAlive = 0;
     private bool isSpawning = false;
+    private bool playerIsDead = false;
 
     private List<GameObject> enemyPool = new List<GameObject>();
+
+    void OnEnable()
+    {
+        PlayerHealth.OnPlayerDied += OnPlayerDeath;
+        EscapeManager.OnPlayerDied += OnPlayerDeath;
+    }
+
+    void OnDisable()
+    {
+        PlayerHealth.OnPlayerDied -= OnPlayerDeath;
+        EscapeManager.OnPlayerDied -= OnPlayerDeath;
+    }
 
     void Start()
     {
@@ -21,6 +34,7 @@ public class WaveManager : MonoBehaviour
 
     void Update()
     {
+        if (playerIsDead) return;
         if (!isSpawning && enemiesAlive == 0)
         {
             Debug.Log($"Terminaste la oleada {currentWave}");
@@ -37,6 +51,7 @@ public class WaveManager : MonoBehaviour
 
         for (int i = 0; i < count; i++)
         {
+            if (playerIsDead) break;
             SpawnEnemy();
             yield return new WaitForSeconds(0.5f);
         }
@@ -57,7 +72,17 @@ public class WaveManager : MonoBehaviour
 
         enemiesAlive++;
     }
-
+    void DeactiveAllBots()
+    {
+        foreach (var enemy in enemyPool)
+        {
+            if (enemy.activeInHierarchy)
+            {
+                enemy.SetActive(false);
+            }
+        }
+        enemiesAlive = 0;
+    }
     GameObject GetEnemyFromPool()
     {
         foreach (var enemy in enemyPool)
@@ -76,5 +101,14 @@ public class WaveManager : MonoBehaviour
     public void OnEnemyKilled()
     {
         enemiesAlive--;
+    }
+    public void OnPlayerDeath()
+    {
+        if (playerIsDead) return;
+
+        Debug.Log("Jugador ha muerto. Deteniendo oleadas y desactivando enemigos.");
+        playerIsDead = true;
+        StopAllCoroutines(); // Detiene cualquier SpawnWave en progreso
+        DeactiveAllBots();
     }
 }
