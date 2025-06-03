@@ -1,20 +1,24 @@
 using UnityEngine;
+using TMPro; // <-- Importar TMP
 
 public class EnemyHealth : MonoBehaviour
 {
     public float maxHealth;
     public float currentHealth;
-    public GameObject explosionEffectPrefab; 
+    public GameObject explosionEffectPrefab;
 
     private WaveManager waveManager;
 
     public AudioClip explosion;
     public AudioSource audioSource;
 
+    public TMP_Text healthText; // <-- Referencia al TMP para mostrar vida
+
     void OnEnable()
     {
         audioSource = GetComponent<AudioSource>();
         ResetHealth();
+        UpdateHealthText(); 
     }
 
     public void SetWaveManager(WaveManager manager)
@@ -25,6 +29,7 @@ public class EnemyHealth : MonoBehaviour
     public void TakeDamage(float amount)
     {
         currentHealth -= amount;
+        UpdateHealthText(); 
 
         if (currentHealth <= 0)
         {
@@ -52,9 +57,17 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
-
     public void ResetHealth()
     {
         currentHealth = maxHealth;
+        UpdateHealthText(); 
+    }
+
+    void UpdateHealthText()
+    {
+        if (healthText != null)
+        {
+            healthText.text = "HP: " + Mathf.Max(currentHealth, 0).ToString("0");
+        }
     }
 }

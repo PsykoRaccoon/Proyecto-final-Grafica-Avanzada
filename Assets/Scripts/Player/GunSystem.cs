@@ -80,10 +80,16 @@ public class GunSystem : MonoBehaviour
 
         Ray cameraRay = Cam.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f));
         Vector3 targetPoint;
-        if (Physics.Raycast(cameraRay, out RaycastHit camHit, range, enemy))
+        if (Physics.Raycast(cameraRay, out RaycastHit camHit, range, enemy)) 
+        {
             targetPoint = camHit.point;
+
+        }
         else
+        {
             targetPoint = Cam.transform.position + Cam.transform.forward * range;
+
+        }
 
         ShootBullet(targetPoint);
     }
@@ -143,7 +149,7 @@ public class GunSystem : MonoBehaviour
     private void Reload()
     {
         reloading = true;
-        playerMovement.animator.SetTrigger("Reload");
+        playerMovement.animator.SetBool("isReloading", true);
         audioSource.PlayOneShot(reloadSound);
         Invoke("ReloadFinished", reloadTime);
     }
@@ -152,7 +158,9 @@ public class GunSystem : MonoBehaviour
     {
         bulletsLeft = magSize;
         reloading = false;
+        playerMovement.animator.SetBool("isReloading", false);
     }
+
 
 
 }
