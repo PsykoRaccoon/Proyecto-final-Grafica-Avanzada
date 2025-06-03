@@ -6,6 +6,7 @@ public class PlayerHealth : MonoBehaviour
     [Header("Health")]
     public float maxHealth;
     public float currentHealth;
+    public TextMeshProUGUI healthText;
 
     [Header("Regen Health")]
     public float regenDelay; 
@@ -13,12 +14,17 @@ public class PlayerHealth : MonoBehaviour
     private float timeSinceLastDamage;
     private bool isRegenerating = false;
 
+    [Header("Canvas")]
+    public GameObject resultTextObject;
+    public GameObject healthGameOverCanvas;
+    private TextMeshProUGUI resultText;
 
-    public TextMeshProUGUI healthText;
 
     void Start()
     {
+        healthGameOverCanvas.SetActive(false);
         currentHealth = maxHealth;
+        resultText = resultTextObject.GetComponent<TextMeshProUGUI>();
     }
 
     private void Update()
@@ -43,6 +49,13 @@ public class PlayerHealth : MonoBehaviour
         {
             Die();
         }
+    }
+
+    void ShowResult(string message, Color color)
+    {
+        resultText.text = message;
+        resultText.color = color;
+        resultTextObject.SetActive(true);
     }
 
 
@@ -74,7 +87,10 @@ public class PlayerHealth : MonoBehaviour
 
     void Die()
     {
-        print("Morido");
-        gameObject.SetActive(false);
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+        healthGameOverCanvas.SetActive(true);
+        ShowResult("Perdiste", Color.red);
+        Time.timeScale = 0f;
     }
 }

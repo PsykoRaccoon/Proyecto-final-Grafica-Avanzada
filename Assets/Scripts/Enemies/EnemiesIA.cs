@@ -105,10 +105,6 @@ public class IA : MonoBehaviour
             {
                 laserGun.TryShoot();
             }
-            else
-            {
-                Debug.Log("Bloqueado: no tiene línea de visión al jugador.");
-            }
         }
 
         animator.SetBool("isWalking", false);
